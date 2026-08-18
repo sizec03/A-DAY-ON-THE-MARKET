@@ -312,7 +312,9 @@ function dataFor(di){
     }
     const r=rng(seedOf(st.code+"@"+date));
     const beta=.7+ (st.w/10)*.6;
-    const ret=MKT[di]*beta+SECF[st.sec][di]*.7+gauss(r)*1.4*(0.8+st.w*.06);
+    const mk=Number.isFinite(MKT[di])?MKT[di]:0;                    // 年切替でdiが元の暦を超えてもNaNにしない
+    const sf=(SECF[st.sec]&&Number.isFinite(SECF[st.sec][di]))?SECF[st.sec][di]:0;
+    const ret=mk*beta+sf*.7+gauss(r)*1.4*(0.8+st.w*.06);
     const base=Math.pow(2.05,st.w)*4.2; // 億円オーダー
     const turn=base*Math.exp(gauss(r)*.55)*(1+Math.min(4,Math.abs(ret))*.9);
     return{st,ret,turn,real:false};
@@ -331,7 +333,9 @@ let T_MEAN=0,T_STD=1;
 function calibrate(){
   dayCache.clear();
   const samp=[];
-  for(let k=0;k<24;k++)samp.push(dataFor(Math.floor(k*(ND-1)/23)).totalT);
+  for(let k=0;k<24;k++){const v=dataFor(Math.floor(k*(ND-1)/23)).totalT;
+    if(Number.isFinite(v))samp.push(v)}
+  if(!samp.length)samp.push(1);
   T_MEAN=samp.reduce((a,b)=>a+b,0)/samp.length;
   T_STD=Math.sqrt(samp.reduce((a,b)=>a+(b-T_MEAN)**2,0)/samp.length)||1;
   dayCache.clear();
@@ -403,7 +407,8 @@ function dayMorph(di,D){
     layered:r()<.5,
     leafLen:.75+D.adv*.5,
     leafTilt:r()*Math.PI,
-    bloom:Math.min(1,Math.max(.15,.55+(D.totalT-T_MEAN)/(2.5*T_STD))),
+    bloom:(()=>{const b=.55+(D.totalT-T_MEAN)/(2.5*T_STD);
+      return Math.min(1,Math.max(.15,Number.isFinite(b)?b:.55))})(),
     ang,thetaC,vol,
   };
 }
