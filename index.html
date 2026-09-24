@@ -75,6 +75,19 @@
   @media (max-width:759px){#gate{display:flex}}
 
   #listToggle{display:none}
+  /* 銘柄タブ（デスクトップ）：普段は閉じ、タブで開閉 */
+  @media (min-width:761px){
+    #list{transform:translateX(100%);transition:transform .28s}
+    #list.open{transform:translateX(0)}
+    #stockTab{position:fixed;z-index:16;top:70px;right:18px;width:34px;height:26px;
+      border:none;background:none;cursor:pointer;padding:5px 4px}
+    #stockTab::before,#stockTab::after{content:"";display:block;height:1.5px;border-radius:1px;
+      background:var(--ink);opacity:.5;transition:opacity .2s}
+    #stockTab::before{margin-bottom:6px}
+    #stockTab:hover::before,#stockTab:hover::after{opacity:.85}
+    #list.open+#stockTab::before,#list.open+#stockTab::after{opacity:1}
+  }
+  @media (max-width:760px){#stockTab{display:none}}
   @media (max-width:760px){
     #list{top:auto;left:0;right:0;width:100%;height:42%;padding-top:0;border-left:none;border-top:1px solid var(--faint);
       transform:translateY(calc(100% - 34px));transition:transform .28s;background:rgba(255,255,255,.8)}
@@ -110,7 +123,7 @@
   </div>
 </header>
 
-<div id="list"><button id="listToggle">▲ 本日のランキング</button><div id="rows"></div></div>
+<div id="list"><button id="listToggle">▲ 本日のランキング</button><div id="rows"></div></div><button id="stockTab" title="銘柄ランキングを開閉"></button>
 
 <div id="dock">
   <button id="btnSnd" title="BGM">MUSIC</button>
@@ -470,7 +483,7 @@ function project(x,y,z){
   Z+=cam.dist;
   if(Z<=.4)return null;
   const f=Math.min(W,H)*1.0/Z;
-  return{x:W*.5-(Math.min(W,H)<760?0:145)+X*f, y:H*.52+Y*f*cam.flip, s:f, z:Z};
+  return{x:W*.5-(Math.min(W,H)<760?0:(LIST_OPEN?145:0))+X*f, y:H*.52+Y*f*cam.flip, s:f, z:Z};
 }
 
 /* ---------- 操作 ---------- */
@@ -851,6 +864,11 @@ document.getElementById("stopD").onclick=()=>{
   setPlayUI();
 };
 document.getElementById("listToggle").onclick=()=>document.getElementById("list").classList.toggle("open");
+let LIST_OPEN=false; // デスクトップの銘柄パネル：閉＝花束が中央、開＝左に寄せて銘柄が見える
+document.getElementById("stockTab").onclick=()=>{
+  LIST_OPEN=!LIST_OPEN;
+  document.getElementById("list").classList.toggle("open",LIST_OPEN);
+};
 let REC=null; // （動画ダウンロード機能は撤去。フレーム側のREC分岐は不活性）
 function updateToneBtn(){
   const b=document.getElementById("btnTone");
