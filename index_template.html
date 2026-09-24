@@ -79,15 +79,8 @@
   @media (min-width:761px){
     #list{transform:translateX(100%);transition:transform .28s}
     #list.open{transform:translateX(0)}
-    #stockTab{position:fixed;z-index:16;top:70px;right:18px;width:34px;height:26px;
-      border:none;background:none;cursor:pointer;padding:5px 4px}
-    #stockTab::before,#stockTab::after{content:"";display:block;height:1.5px;border-radius:1px;
-      background:var(--ink);opacity:.5;transition:opacity .2s}
-    #stockTab::before{margin-bottom:6px}
-    #stockTab:hover::before,#stockTab:hover::after{opacity:.85}
-    #list.open+#stockTab::before,#list.open+#stockTab::after{opacity:1}
+
   }
-  @media (max-width:760px){#stockTab{display:none}}
   @media (max-width:760px){
     #list{top:auto;left:0;right:0;width:100%;height:42%;padding-top:0;border-left:none;border-top:1px solid var(--faint);
       transform:translateY(calc(100% - 34px));transition:transform .28s;background:rgba(255,255,255,.8)}
@@ -117,13 +110,14 @@
     <option value="now" selected>NOW</option>
   </select>
   <div id="metrics"></div>
-  <div id="panelCtl" style="width:276px;padding-left:12px;box-sizing:border-box;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
+  <div id="panelCtl" style="width:352px;padding-left:12px;box-sizing:border-box;display:flex;gap:6px;flex-wrap:wrap;align-items:center">
     <button class="chip" id="btnWorld" style="flex:1;text-align:center" title="花と茎と葉の配色をランダムに">世界</button>
     <button class="chip on" id="btnTone" style="flex:1;text-align:center">花 線/混</button>
+    <button class="chip" id="stockTab" style="flex:1;text-align:center" title="銘柄ランキングを開閉">銘柄</button>
   </div>
 </header>
 
-<div id="list"><button id="listToggle">▲ 本日のランキング</button><div id="rows"></div></div><button id="stockTab" title="銘柄ランキングを開閉"></button>
+<div id="list"><button id="listToggle">▲ 本日のランキング</button><div id="rows"></div></div>
 
 <div id="dock">
   <button id="btnSnd" title="BGM">MUSIC</button>
@@ -868,6 +862,7 @@ let LIST_OPEN=false; // デスクトップの銘柄パネル：閉＝花束が�
 document.getElementById("stockTab").onclick=()=>{
   LIST_OPEN=!LIST_OPEN;
   document.getElementById("list").classList.toggle("open",LIST_OPEN);
+  document.getElementById("stockTab").classList.toggle("on",LIST_OPEN);
 };
 let REC=null; // （動画ダウンロード機能は撤去。フレーム側のREC分岐は不活性）
 function updateToneBtn(){
