@@ -46,7 +46,7 @@
   .row.sel{background:var(--accent)}
   .row.sel *{color:var(--ink-on-accent)!important}
   .row .rk{font-family:var(--mono);font-size:10px;color:var(--dim)}
-  .row .nm{font-size:11.5px;font-weight:400;line-height:1.25} /* 銘柄名も下段（コード/業種）と同じ細さに */
+  .row .nm{font-size:11.5px;font-weight:400;line-height:1.25} /* 銘柄名は下段（コード/業種）と同じウェイト */
   .row .ind{font-family:var(--mono);font-size:8.5px;color:var(--dim)}
   .row .val{font-family:var(--mono);font-size:10px;text-align:right;color:var(--ink)}
   .row .bar{grid-column:1/4;height:2px;background:var(--accent);opacity:.75;border-radius:1px}
@@ -138,7 +138,7 @@
 
 <script>
 /* =========================================================
-   NIKKEI FLOWER v1
+   NIKKEI FLOWER
    日経225の一日を一輪の花に。
    ・銘柄＝花びらの上のドット（大きさ＝売買代金 or 騰落率）
    ・花びら＝6セクター、花びら内で業種ごとにクラスタ
@@ -590,7 +590,7 @@ function computeDay(){
       z:a2*a2*P0.z+2*a2*t2*P1.z+t2*t2*P2.z}};
 
     const n=secIdxs.length;
-    // 全市場モードは葉の比率を抑え、花弁に回す（葉が茂りすぎる問題の調整）
+    // 全市場モードは葉の比率を抑え、花弁に回す（密度の均衡）
     const wideU=ACTIVE.length>400;
     const nH=Math.max(1,Math.round(n*(wideU?.75:.62))), nL=Math.round(n*(wideU?.09:.22));
     const headArr=secIdxs.slice(0,nH);
@@ -794,7 +794,7 @@ document.getElementById("btnSnd").onclick=()=>{
    曲が鳴っている間は bgm.currentTime が唯一の時計（ドリフトなし）。
    消音時は実時間で近似。▶再生のたびに曲頭から新しいセットが始まる。 */
 let SYNC=null; // {t0, startDay, startTone}
-const BPM=96;  // 曲のテンポ（リズム演出用・要調整ならここ）
+const BPM=96;  // 曲のテンポ（リズム演出の基準値）
 let lastBeat=-1;
 function tickSync(){
   if(!SYNC)return;
@@ -875,7 +875,7 @@ document.getElementById("stockTab").onclick=()=>{
   document.getElementById("list").classList.toggle("open",LIST_OPEN);
   document.getElementById("stockTab").classList.toggle("on",LIST_OPEN);
 };
-let REC=null; // （動画ダウンロード機能は撤去。フレーム側のREC分岐は不活性）
+let REC=null; // 録画モード（この版では常にnull）
 function updateToneBtn(){
   const b=document.getElementById("btnTone");
   b.textContent=TONE_MODES[toneIdx].l;
@@ -910,7 +910,6 @@ document.getElementById("vTop").onclick=()=>setView("top");
 document.getElementById("vIso").onclick=()=>setView("iso");
 document.getElementById("vSide").onclick=()=>setView("side");
 
-/* 世界：花と茎と葉の配色をランダムに変える（背景・UIは日替わりのまま） */
 /* 世界：部屋の配色を5パターンで巡回（花の色はその日のまま） */
 const WORLD_PRESETS=[
   null,                                               // P0 桃地・サーモンの器・青緑の卓（初期）
@@ -985,7 +984,7 @@ if(EMBEDDED_CSV_B64){
    変動率＝波打つくびれ / 出来高＝ビーカー（計量の円筒）。指標切替でモーフする。 */
 const VASE_PROFILES={
   turn: [[-1.12,.38],[-1.30,.32],[-1.55,.44],[-1.84,.60],[-2.10,.57],[-2.30,.40],[-2.40,.34]],
-  up:   [[-1.12,.30],[-1.30,.24],[-1.55,.21],[-1.84,.20],[-2.10,.21],[-2.30,.22],[-2.40,.27]], // 上昇率＝すっと立ち上がる細身の円柱（口の開きは控えめに）
+  up:   [[-1.12,.30],[-1.30,.24],[-1.55,.21],[-1.84,.20],[-2.10,.21],[-2.30,.22],[-2.40,.27]], // 上昇率＝すっと立ち上がる細身の円柱（口の開きは浅い）
   down: [[-1.12,.19],[-1.30,.22],[-1.55,.31],[-1.84,.47],[-2.10,.57],[-2.30,.49],[-2.40,.37]],
   range:[[-1.12,.40],[-1.30,.20],[-1.55,.44],[-1.84,.22],[-2.10,.46],[-2.30,.24],[-2.40,.32]],
   vol:  [[-1.12,.34],[-1.30,.34],[-1.55,.34],[-1.84,.34],[-2.10,.34],[-2.30,.34],[-2.40,.34]],
@@ -1711,7 +1710,7 @@ function frame(now){
   // 机のグリッド：4列 × 4行（外径±3）。内側の線＝1.3倍、外周の線＝2.5倍
   {
     const R=3;
-    // 天板：うっすら白い面（花・茎・花瓶・降下物には影響しない、床面の塗りのみ）
+    // 天板：卓の色で塗る（花・茎・花瓶・降下物には影響しない、床面の塗りのみ）
     {
       const C=[[-R,-R],[R,-R],[R,R],[-R,R]].map(([x,z])=>project(x,-2.4,z));
       if(C.every(Boolean)){
@@ -1946,8 +1945,7 @@ function frame(now){
       const s=Math.max(.8,d.size*p.s*.017);
       const TM=TONE_MODES[toneIdx];
       if(d.acc&&TM.grad&&d.accN>1&&s>2.2){
-        // リンググラデ：白核 → 主色 → 対比色の同心リング。
-        // 段差の塗り分けではなく、radialGradientで境界をにじませた滑らかな輪にする
+        // リンググラデ：白核 → 主色 → 対比色の同心リング（radialGradientで境界をにじませる）
         const g2=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,s/2);
         const hs=[d.col,d.acc,d.acc2].slice(0,d.accN);
         g2.addColorStop(0,"rgba(255,255,255,.95)");           // 白く光る芯
