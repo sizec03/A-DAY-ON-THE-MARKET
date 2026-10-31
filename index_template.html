@@ -113,9 +113,11 @@
     header{flex-wrap:wrap;gap:8px}
     #dataTag{display:none}
   }
+  .sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 </style>
 </head>
 <body>
+<p class="sr-only">A DAY ON THE MARKET は、東京証券取引所の一日を一輪の花束に生けるデータビジュアライゼーション。日経225の全銘柄が花弁になり、売買代金で大きく、株価の上下で赤く青く咲く。毎営業日、市場のデータから新しい花が咲きます。</p>
 <noscript><p>A DAY ON THE MARKET — 東京証券取引所の一日を一輪の花束に生けるデータビジュアライゼーション。閲覧にはJavaScriptが必要です。</p></noscript>
 
 <div id="stage"><canvas id="cv"></canvas></div>
